@@ -487,7 +487,7 @@ func newDeviceLite(h handle) (device *Device, err error) {
 	return
 }
 
-func (d *Device) Status() (status *DeviceStatus, err error) {
+func (d *Device) Status(proc string) (status *DeviceStatus, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = r.(error)
@@ -520,7 +520,7 @@ func (d *Device) Status() (status *DeviceStatus, err error) {
 	assert(err)
 	perfState, err := d.getPerformanceState()
 	assert(err)
-	processInfo, err := d.deviceGetAllRunningProcesses()
+	processInfo, err := d.deviceGetAllRunningProcesses(proc)
 	assert(err)
 
 	status = &DeviceStatus{
@@ -636,7 +636,7 @@ func (d *Device) GetGraphicsRunningProcesses() ([]uint, []uint64, error) {
 }
 
 func (d *Device) GetAllRunningProcesses() ([]ProcessInfo, error) {
-	return d.handle.deviceGetAllRunningProcesses()
+	return d.handle.deviceGetAllRunningProcesses("/proc")
 }
 
 func (d *Device) GetDeviceMode() (mode *DeviceMode, err error) {

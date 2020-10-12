@@ -591,7 +591,7 @@ func (h handle) deviceGetGraphicsRunningProcesses() ([]uint, []uint64, error) {
 	return pids, mems, errorString(r)
 }
 
-func (h handle) deviceGetAllRunningProcesses() ([]ProcessInfo, error) {
+func (h handle) deviceGetAllRunningProcesses(proc string) ([]ProcessInfo, error) {
 	cPids, cpMems, err := h.deviceGetComputeRunningProcesses()
 	if err != nil {
 		return nil, err
@@ -605,7 +605,7 @@ func (h handle) deviceGetAllRunningProcesses() ([]ProcessInfo, error) {
 	allPids := make(map[uint]ProcessInfo)
 
 	for i, pid := range cPids {
-		name, err := processName(pid)
+		name, err := processName(proc, pid)
 		if err != nil {
 			return nil, err
 		}
@@ -624,7 +624,7 @@ func (h handle) deviceGetAllRunningProcesses() ([]ProcessInfo, error) {
 			pInfo.Type = ComputeAndGraphics
 			allPids[pid] = pInfo
 		} else {
-			name, err := processName(pid)
+			name, err := processName(proc, pid)
 			if err != nil {
 				return nil, err
 			}
@@ -701,8 +701,8 @@ func (h handle) getPerformanceState() (PerfState, error) {
 	return PerfState(pstate), nil
 }
 
-func processName(pid uint) (string, error) {
-	f := `/proc/` + strconv.FormatUint(uint64(pid), 10) + `/comm`
+func processName(proc string, pid uint) (string, error) {
+	f := proc + "/" + strconv.FormatUint(uint64(pid), 10) + `/comm`
 	d, err := ioutil.ReadFile(f)
 
 	if err != nil {
